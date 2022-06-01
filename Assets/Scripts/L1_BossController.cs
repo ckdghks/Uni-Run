@@ -19,9 +19,10 @@ public class L1_BossController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+
         rigid.velocity = new Vector2(nextMove, nextMove1);
 
-        Vector2 frontVec = new Vector2(rigid.position.x+ nextMove, rigid.position.y + nextMove1);
+        Vector2 frontVec = new Vector2(rigid.position.x+ nextMove, rigid.position.y);
         Debug.DrawRay(rigid.position, Vector3.down, new Color(0, 1, 0));
         RaycastHit2D rayHit = Physics2D.Raycast(rigid.position, Vector3.down, 1, LayerMask.GetMask("Platform"));
         if (rayHit.collider == null)
@@ -33,7 +34,8 @@ public class L1_BossController : MonoBehaviour
     void Think()
     {
         nextMove = Random.Range(-1, 2);
-        nextMove1 = Random.Range(-1, 1);
+        nextMove1 = Random.Range(-1, 2);
+
         Invoke("Think", 5);
     }
 }

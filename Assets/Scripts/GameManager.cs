@@ -17,26 +17,29 @@ public class GameManager : MonoBehaviour
     public float LimitTime; // 성공 판별 시간
     public Text text_Timer; // 시간 출력 UI
 
-    private int score = 0; // 게임 점수
-    private int Life = 3;
+    private int score = 0;
+    private static int total_score = 0; // 게임 점수 총합
+    private static int Life = 3;    // 라이프 
 
     public int BossLife = 3;
     public bool isBossDead = false;
 
-    private int total_Score = 0;
     public Text totalScore_Text;
 
     public void LoadNextScene()
     {
-        total_Score += this.score;
         Scene scene = SceneManager.GetActiveScene();
 
         int curScene = scene.buildIndex;
         //Debug.Log("curScene : " + curScene);
 
         int nextScene = curScene + 1;
+        if (nextScene <= 10)
+        {
+            total_score += score;
+            SceneManager.LoadScene(nextScene);
+        }
 
-        SceneManager.LoadScene(nextScene);
     }
 
 
@@ -68,7 +71,7 @@ public class GameManager : MonoBehaviour
             text_Timer.text = "time : " + Mathf.Round(LimitTime);
             LifeText.text = "Life : " + Life;
         }
-        // 게임 오버 상태에서 게임을 재시작할 수 있게 하는 처리
+        // 게임 오버 상태에서 게임을 재시작할 수 있게 하는 처리 
         if (isGameover && Input.GetMouseButtonDown(0))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -78,13 +81,19 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("In!!");
             LoadNextScene();
-            //SceneManager.LoadScene("Level1-Boss");
+            //SceneManager.LoadScene("Level-Boss");
         }
         if (isBossDead == true)
         {
+            AddScore(3); // 점수 주고
+            SubLife(-2); // 체력 주고
             LoadNextScene();
         }
-        totalScore_Text.text = "Total Score : " + total_Score;
+        scoreText.text = "Score : " + score;
+        LifeText.text = "Life : " + Life;
+
+        // 마지막 씬
+        totalScore_Text.text = "Total Score : " + total_score;
     }
 
     // 점수를 증가시키는 메서드
@@ -93,7 +102,8 @@ public class GameManager : MonoBehaviour
         if (!isGameover)
         {
             score += newScore;
-            scoreText.text = "Score : " + score;
+            //scoreText.text = "Score : " + score;
+            Debug.Log(score);
         }
     }
 
@@ -102,11 +112,13 @@ public class GameManager : MonoBehaviour
         if (!isGameover)
         {
             Life = Life - discount;
-            LifeText.text = "Life : " + Life;
+            //LifeText.text = "Life : " + Life;
         }
         if (Life <= 0)
         {
             OnPlayerDead();
+            // 라이프가 다 떨어지면 GameOver 화면으로.....
+            SceneManager.LoadScene("GameOver");
         }
     }
 
@@ -125,7 +137,7 @@ public class GameManager : MonoBehaviour
 
     public int ReturnLife()
     {
-        return this.Life;
+        return Life;
     }
 
     // 플레이어 캐릭터가 사망시 게임 오버를 실행하는 메서드
@@ -133,5 +145,14 @@ public class GameManager : MonoBehaviour
     {
         isGameover = true;
         gameoverUI.SetActive(true);
+    }
+
+    //GameOverScene에서 사용.
+    public void LoadGameOver()
+    {
+        Life = 3;   // 다시 라이프를 3으로...
+        total_score = 0; // 총합 점수를 0으로...
+        // 버튼을 누르면 타이틀화면으로....
+        SceneManager.LoadScene(0);
     }
 }

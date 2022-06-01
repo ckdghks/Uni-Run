@@ -29,7 +29,6 @@ public class L1_B_PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         playerAudio = GetComponent<AudioSource>();
 
-
     }
 
     void Update()
@@ -48,11 +47,21 @@ public class L1_B_PlayerController : MonoBehaviour
         float h = Input.GetAxisRaw("Horizontal");
 
         rigid.AddForce(Vector2.right * h, ForceMode2D.Impulse);
-
+        
         if (rigid.velocity.x > maxSpeed)
+        {
             rigid.velocity = new Vector2(maxSpeed, rigid.velocity.y);
+        }
         else if (rigid.velocity.x < maxSpeed * (-1))
+        {
             rigid.velocity = new Vector2(maxSpeed * (-1), rigid.velocity.y);
+        }
+
+        // 방향에 따라 애니메이션 회전..
+        if (Input.GetKey(KeyCode.RightArrow))
+            transform.rotation = Quaternion.Euler(new Vector2(0, 0));
+        else if (Input.GetKey(KeyCode.LeftArrow))
+            transform.rotation = Quaternion.Euler(new Vector2(0, 180));
 
         animator.SetBool("Grounded", isGrounded);
 
@@ -84,6 +93,22 @@ public class L1_B_PlayerController : MonoBehaviour
                 Die();
             }
         }
+
+        if (other.tag == "Dead" && !isDead)
+        {
+
+            GameManager.instance.SubLife(1);
+            if (GameManager.instance.ReturnLife() <= 0)
+                Die();
+
+        }
+
+        if (GameManager.instance.ReturnLife() <= 0)
+        {
+            Die();
+        }
+
+
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
